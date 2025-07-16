@@ -7,4 +7,5 @@ requires-python = ">=3.12"
 dependencies = [
     "fastapi[standard]>=0.116.1",
     "ruff>=0.12.3",
+    "scalar-fastapi>=1.2.1",
 ]
