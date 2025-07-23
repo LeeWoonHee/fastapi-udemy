@@ -3,10 +3,10 @@ from scalar_fastapi import get_scalar_api_reference
 
 app = FastAPI()
 
-
-@app.get("/shipment")
-async def get_shipment():
-    return {"content": "wooden table", "status": "in transit"}
+# ep11 udemy
+@app.get("/shipment/{id}")
+async def get_shipment(id : int) -> dict[str, str | int]:
+    return {"content": "wooden table", "status": "in transit", "id": id}
 
 
 @app.get("/scalar", include_in_schema=False) 
