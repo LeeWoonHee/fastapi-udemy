@@ -1,11 +1,12 @@
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, status, HTTPException
 from scalar_fastapi import get_scalar_api_reference
+from starlette.status import HTTP_406_NOT_ACCEPTABLE
 
 app = FastAPI()
 
-# ep13 udemy
+# ep14 udemy
 shipments = {
     123: {"weight": 95, "content": "book", "status": "in transit"},
     456: {"weight": 2.5, "content": "phone", "status": "delivered"},
@@ -17,18 +18,36 @@ shipments = {
 }
 
 
-@app.get("/shipment/latest")
-async def get_latest_shipment() -> dict[str, Any]:
-    id = max(shipments.keys())
-    return shipments[id]
+# @app.get("/shipment/latest")
+# async def get_latest_shipment() -> dict[str, Any]:
+#     id = max(shipments.keys())
+#     return shipments[id]
 
 
-@app.get("/shipment/{id}")
-async def get_shipment(id: int) -> dict[str, Any]:
+# 쿼리 파라미터로 하고 싶을 떄는 /{id} 제거 하면 자동으로 query 파라미터로 인식함
+@app.get("/shipment", status_code=status.HTTP_200_OK)
+async def get_shipment(id: int | None = None) -> dict[str, Any]:
+    # if not id:
+    #     id = max(shipments.keys())
+    #     return shipments[id]
     if id not in shipments:
-        return {"detail": "shipment not found"}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="id not found"
+        )
     return shipments[id]
 
+
+# ep16 udemy
+@app.post("/shipment")
+def submit_shipment(content: str, weight: float) -> dict[str, int]:
+
+
+    if weight > 25 :
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE,
+                            detail="용량제한")
+    new_id = max(shipments.keys()) + 1
+    shipments[new_id] = {"content": content, "weight": weight, "status": "placed"}
+    return{ "id" : new_id}
 
 @app.get("/scalar", include_in_schema=False)
 async def get_scalar_docs():
